@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가타카나 학습 프로그램</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 문자표 스타일 */
+        .character-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .character-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .character-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .character {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .pronunciation {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 단어 스타일 */
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .word-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .word-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .word {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .meaning {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 페이지네이션 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .page-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* 퀴즈 스타일 */
+        .quiz-container {
+            text-align: center;
+        }
+
+        .quiz-header {
+            margin-bottom: 30px;
+        }
+
+        .progress {
+            font-size: 1.2rem;
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 30px 0;
+            color: #333;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .option-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .option-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .option-btn.correct {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .option-btn.incorrect {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .quiz-result {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .score {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+        }
+
+        .restart-btn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .restart-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .character-grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+            
+            .character-card {
+                padding: 15px 8px;
+            }
+            
+            .character {
+                font-size: 1.5rem;
+            }
+            
+            .pronunciation {
+                font-size: 0.8rem;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .question {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌸 카라스반 가타카나 학습프로그램 🌸</h1>
+            <p>일본어 가타카나를 재미있게 배워보세요!</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="showTab('characters')">문자표</button>
+            <button class="tab-btn" onclick="showTab('words')">단어장</button>
+            <button class="tab-btn" onclick="showTab('character-quiz')">문자 퀴즈</button>
+            <button class="tab-btn" onclick="showTab('word-quiz')">단어 퀴즈</button>
+        </div>
+
+        <!-- 문자표 탭 -->
+        <div id="characters" class="tab-content active">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">가타카나 문자표</h2>
+            <div class="character-grid" id="characterGrid"></div>
+        </div>
+
+        <!-- 단어장 탭 -->
+        <div id="words" class="tab-content">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #333;">가타카나 단어장</h2>
+            <div class="word-grid" id="wordGrid"></div>
+            <div class="pagination">
+                <button class="page-btn" id="prevBtn" onclick="changePage(-1)">‹</button>
+                <span class="page-info" id="pageInfo">1 / 5</span>
+                <button class="page-btn" id="nextBtn" onclick="changePage(1)">›</button>
+            </div>
+        </div>
+
+        <!-- 문자 퀴즈 탭 -->
+        <div id="character-quiz" class="tab-content">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <h2 style="margin-bottom: 20px; color: #333;">가타카나 문자 퀴즈</h2>
+                    <div class="progress" id="charProgress">1 / 20</div>
+                </div>
+                <div id="charQuizContent">
+                    <div class="question" id="charQuestion">ア</div>
+                    <div class="options" id="charOptions"></div>
+                </div>
+                <div id="charQuizResult" class="quiz-result" style="display: none;">
+                    <div class="score" id="charScore"></div>
+                    <div class="rank" id="charRank"></div>
+                    <button class="restart-btn" onclick="startCharacterQuiz()">다시 도전하기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 단어 퀴즈 탭 -->
+        <div id="word-quiz" class="tab-content">
+            <div class="quiz-container">
+                <div class="quiz-header">
+                    <h2 style="margin-bottom: 20px; color: #333;">가타카나 단어 퀴즈</h2>
+                    <div class="progress" id="wordProgress">1 / 20</div>
+                </div>
+                <div id="wordQuizContent">
+                    <div class="question" id="wordQuestion">アイス</div>
+                    <div class="options" id="wordOptions"></div>
+                </div>
+                <div id="wordQuizResult" class="quiz-result" style="display: none;">
+                    <div class="score" id="wordScore"></div>
+                    <div class="rank" id="wordRank"></div>
+                    <button class="restart-btn" onclick="startWordQuiz()">다시 도전하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 가타카나 문자 데이터
+        const katakanaChars = [
+            // あ행
+            ['ア', '아'], ['イ', '이'], ['ウ', '우'], ['エ', '에'], ['オ', '오'],
+            // か행
+            ['カ', '카'], ['キ', '키'], ['ク', '쿠'], ['ケ', '케'], ['コ', '코'],
+            // さ행
+            ['サ', '사'], ['シ', '시'], ['ス', '스'], ['セ', '세'], ['ソ', '소'],
+            // た행
+            ['タ', '타'], ['チ', '치'], ['ツ', '츠'], ['テ', '테'], ['ト', '토'],
+            // な행
+            ['ナ', '나'], ['ニ', '니'], ['ヌ', '누'], ['ネ', '네'], ['ノ', '노'],
+            // は행
+            ['ハ', '하'], ['ヒ', '히'], ['フ', '후'], ['ヘ', '헤'], ['ホ', '호'],
+            // ま행
+            ['マ', '마'], ['ミ', '미'], ['ム', '무'], ['メ', '메'], ['モ', '모'],
+            // や행
+            ['ヤ', '야'], ['ユ', '유'], ['ヨ', '요'],
+            // ら행
+            ['ラ', '라'], ['リ', '리'], ['ル', '루'], ['レ', '레'], ['ロ', '로'],
+            // わ행
+            ['ワ', '와'], ['ヲ', '오/워'], ['ン', '응']
+        ];
+
+        // 가타카나 단어 데이터 (200개)
+        const katakanaWords = [
+            // 1페이지 (1-40)
+            ['アイス', '아이스크림'], ['アニメ', '애니메이션'], ['アメリカ', '미국'], ['アルバイト', '아르바이트'],
+            ['イギリス', '영국'], ['イタリア', '이탈리아'], ['インド', '인도'], ['ウイスキー', '위스키'],
+            ['エアコン', '에어컨'], ['オレンジ', '오렌지'], ['カメラ', '카메라'], ['カレー', '카레'],
+            ['ガラス', '유리'], ['キャベツ', '양배추'], ['ギター', '기타'], ['クッキー', '쿠키'],
+            ['グループ', '그룹'], ['ケーキ', '케이크'], ['ゲーム', '게임'], ['コーヒー', '커피'],
+            ['コップ', '컵'], ['ゴルフ', '골프'], ['サッカー', '축구'], ['サラダ', '샐러드'],
+            ['シャツ', '셔츠'], ['ジュース', '주스'], ['スープ', '수프'], ['スキー', '스키'],
+            ['ステーキ', '스테이크'], ['ズボン', '바지'], ['セーター', '스웨터'], ['ソファー', '소파'],
+            ['タクシー', '택시'], ['タオル', '타월'], ['チーズ', '치즈'], ['チケット', '티켓'],
+            ['テーブル', '테이블'], ['テニス', '테니스'], ['トマト', '토마토'], ['ドア', '문'],
+            
+            // 2페이지 (41-80)
+            ['ナイフ', '나이프'], ['ニュース', '뉴스'], ['ネクタイ', '넥타이'], ['ノート', '노트'],
+            ['バス', '버스'], ['パン', '빵'], ['ハンバーガー', '햄버거'], ['ピアノ', '피아노'],
+            ['ビール', '맥주'], ['プール', '수영장'], ['ベッド', '침대'], ['ペン', '펜'],
+            ['ボール', '공'], ['ポケット', '주머니'], ['マヨネーズ', '마요네즈'], ['ミルク', '우유'],
+            ['メロン', '멜론'], ['モデル', '모델'], ['ヨーグルト', '요구르트'], ['ライオン', '사자'],
+            ['ラジオ', '라디오'], ['リンゴ', '사과'], ['レモン', '레몬'], ['ロボット', '로봇'],
+            ['ワイン', '와인'], ['アップル', '애플'], ['イチゴ', '딸기'], ['ウール', '울'],
+            ['エレベーター', '엘리베이터'], ['オムレツ', '오믈렛'], ['カップ', '컵'], ['ガソリン', '가솔린'],
+            ['キッチン', '주방'], ['ギョーザ', '만두'], ['クリーム', '크림'], ['グラス', '글라스'],
+            ['ケチャップ', '케첩'], ['ゲート', '게이트'], ['コンピューター', '컴퓨터'], ['ゴミ', '쓰레기'],
+            
+            // 3페이지 (81-120)
+            ['サンドイッチ', '샌드위치'], ['シューズ', '신발'], ['ジャム', '잼'], ['スプーン', '숟가락'],
+            ['スマートフォン', '스마트폰'], ['ズーム', '줌'], ['セット', '세트'], ['ソース', '소스'],
+            ['タイヤ', '타이어'], ['ダイヤモンド', '다이아몬드'], ['チョコレート', '초콜릿'], ['ヂーゼル', '디젤'],
+            ['ツアー', '투어'], ['デザート', '디저트'], ['トイレ', '화장실'], ['ドライバー', '드라이버'],
+            ['ナプキン', '냅킨'], ['ニンジン', '당근'], ['ネット', '인터넷'], ['ノック', '노크'],
+            ['バター', '버터'], ['パーティー', '파티'], ['ハム', '햄'], ['ピザ', '피자'],
+            ['ビデオ', '비디오'], ['プレゼント', '선물'], ['ベルト', '벨트'], ['ペット', '애완동물'],
+            ['ボタン', '버튼'], ['ポスト', '우편함'], ['マーケット', '시장'], ['ミート', '고기'],
+            ['メニュー', '메뉴'], ['モーター', '모터'], ['ヤング', '젊은'], ['ユニフォーム', '유니폼'],
+            ['ヨット', '요트'], ['ライト', '불빛'], ['ラーメン', '라면'], ['リモコン', '리모컨'],
+            
+            // 4페이지 (121-160)
+            ['レストラン', '레스토랑'], ['ロケット', '로켓'], ['ワールド', '세계'], ['アイロン', '다리미'],
+            ['イヤホン', '이어폰'], ['ウェディング', '웨딩'], ['エプロン', '앞치마'], ['オフィス', '사무실'],
+            ['カード', '카드'], ['ガーデン', '정원'], ['キャンディー', '사탕'], ['ギフト', '선물'],
+            ['クローゼット', '옷장'], ['グリーン', '초록색'], ['ケーブル', '케이블'], ['ゲスト', '손님'],
+            ['コンサート', '콘서트'], ['ゴール', '골'], ['サーモン', '연어'], ['シアター', '극장'],
+            ['ジャケット', '재킷'], ['スタジオ', '스튜디오'], ['スナック', '간식'], ['ズーム', '줌'],
+            ['セキュリティ', '보안'], ['ソファ', '소파'], ['タワー', '타워'], ['ダンス', '댄스'],
+            ['チーム', '팀'], ['ヂュース', '주스'], ['ツール', '도구'], ['デスク', '책상'],
+            ['トンネル', '터널'], ['ドラマ', '드라마'], ['ナンバー', '번호'], ['ニックネーム', '별명'],
+            ['ネットワーク', '네트워크'], ['ノンストップ', '논스톱'], ['バランス', '균형'], ['パスワード', '패스워드'],
+            
+            // 5페이지 (161-200)
+            ['ハンドル', '핸들'], ['ピクニック', '피크닉'], ['ビジネス', '비지니스'], ['プラン', '계획'],
+            ['ベンチ', '벤치'], ['ペンギン', '펭귄'], ['ボックス', '박스'], ['ポイント', '포인트'],
+            ['マシン', '기계'], ['ミュージック', '음악'], ['メッセージ', '메시지'], ['モニター', '모니터'],
+            ['ヤード', '야드'], ['ユーザー', '사용자'], ['ヨーロッパ', '유럽'], ['ライン', '라인'],
+            ['ラウンド', '라운드'], ['リーダー', '리더'], ['レシピ', '레시피'], ['ロック', '자물쇠'],
+            ['ワーク', '일'], ['アドレス', '주소'], ['インテリア', '인테리어'], ['ウィンドウ', '창문'],
+            ['エンジン', '엔진'], ['オーケストラ', '오케스트라'], ['キャンプ', '캠프'], ['ギャラリー', '갤러리'],
+            ['クリニック', '클리닉'], ['グランド', '그라운드'], ['ケース', '케이스'], ['ゲージ', '게이지'],
+            ['コレクション', '컬렉션'], ['ゴールド', '금'], ['サイト', '사이트'], ['シンプル', '간단한'],
+            ['ジャンル', '장르'], ['スタート', '시작'], ['スペース', '공간'], ['ゼロ', '0'],
+            ['セクション', '섹션'], ['ソフト', '소프트'], ['タイプ', '타입'], ['ダウンロード', '다운로드'],
+            ['チャンス', '기회'], ['ツイッター', '트위터'], ['デジタル', '디지털'], ['トップ', '탑']
+        ];
+
+        // 현재 페이지
+        let currentPage = 1;
+        const wordsPerPage = 40;
+        const totalPages = 5;
+
+        // 퀴즈 상태
+        let charQuizData = [];
+        let wordQuizData = [];
+        let currentCharQuiz = 0;
+        let currentWordQuiz = 0;
+        let charScore = 0;
+        let wordScore = 0;
+
+        // 탭 전환
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'character-quiz') {
+                startCharacterQuiz();
+            } else if (tabName === 'word-quiz') {
+                startWordQuiz();
+            }
+        }
+
+        // 문자표 표시
+        function displayCharacters() {
+            const grid = document.getElementById('characterGrid');
+            grid.innerHTML = '';
+            
+            // 5개씩 행으로 나누어 표시
+            for (let i = 0; i < katakanaChars.length; i += 5) {
+                const rowChars = katakanaChars.slice(i, i + 5);
+                rowChars.forEach(([char, pronunciation]) => {
+                    const card = document.createElement('div');
+                    card.className = 'character-card';
+                    card.innerHTML = `
+                        <div class="character">${char}</div>
+                        <div class="pronunciation">${pronunciation}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+                
+                // 5개 미만인 마지막 행의 경우 빈 공간 채우기
+                const remaining = 5 - rowChars.length;
+                for (let j = 0; j < remaining; j++) {
+                    const emptyCard = document.createElement('div');
+                    emptyCard.style.visibility = 'hidden';
+                    grid.appendChild(emptyCard);
+                }
+            }
+        }
+
+        // 단어장 표시
+        function displayWords() {
+            const grid = document.getElementById('wordGrid');
+            const startIndex = (currentPage - 1) * wordsPerPage;
+            const endIndex = startIndex + wordsPerPage;
+            const currentWords = katakanaWords.slice(startIndex, endIndex);
+            
+            grid.innerHTML = '';
+            currentWords.forEach(([word, meaning]) => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.innerHTML = `
+                    <div class="word">${word}</div>
+                    <div class="meaning">${meaning}</div>
+                `;
+                grid.appendChild(card);
+            });
+            
+            updatePagination();
+        }
+
+        // 페이지네이션 업데이트
+        function updatePagination() {
+            document.getElementById('pageInfo').textContent = `${currentPage} / ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 1;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages;
+        }
+
+        // 페이지 변경
+        function changePage(direction) {
+            const newPage = currentPage + direction;
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                displayWords();
+            }
+        }
+
+        // 문자 퀴즈 시작
+        function startCharacterQuiz() {
+            charQuizData = [...katakanaChars].sort(() => Math.random() - 0.5).slice(0, 20);
+            currentCharQuiz = 0;
+            charScore = 0;
+            
+            document.getElementById('charQuizContent').style.display = 'block';
+            document.getElementById('charQuizResult').style.display = 'none';
+            
+            showCharacterQuestion();
+        }
+
+        // 문자 퀴즈 문제 표시
+        function showCharacterQuestion() {
+            if (currentCharQuiz >= 20) {
+                showCharacterResult();
+                return;
+            }
+            
+            const [correctChar, correctPronunciation] = charQuizData[currentCharQuiz];
+            const wrongOptions = katakanaChars
+                .filter(([char, pron]) => pron !== correctPronunciation)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(([char, pron]) => pron);
+            
+            const options = [correctPronunciation, ...wrongOptions].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('charProgress').textContent = `${currentCharQuiz + 1} / 20`;
+            document.getElementById('charQuestion').textContent = correctChar;
+            
+            const optionsContainer = document.getElementById('charOptions');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkCharacterAnswer(option, correctPronunciation, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // 문자 퀴즈 답안 확인
+        function checkCharacterAnswer(selected, correct, btn) {
+            const allBtns = document.querySelectorAll('#charOptions .option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            
+            if (selected === correct) {
+                btn.classList.add('correct');
+                charScore++;
+            } else {
+                btn.classList.add('incorrect');
+                allBtns.forEach(b => {
+                    if (b.textContent === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            setTimeout(() => {
+                currentCharQuiz++;
+                showCharacterQuestion();
+            }, 1500);
+        }
+
+        // 문자 퀴즈 결과 표시
+        function showCharacterResult() {
+            document.getElementById('charQuizContent').style.display = 'none';
+            document.getElementById('charQuizResult').style.display = 'block';
+            
+            const percentage = (charScore / 20) * 100;
+            document.getElementById('charScore').textContent = `점수: ${charScore}/20 (${percentage.toFixed(1)}%)`;
+            
+            let rank = '';
+            if (percentage <= 20) rank = '카라스반 새내기';
+            else if (percentage <= 40) rank = '카라스반 초보';
+            else if (percentage <= 60) rank = '카라스반 중급';
+            else if (percentage <= 80) rank = '카라스반 고수';
+            else rank = '카라스반 마스터';
+            
+            document.getElementById('charRank').textContent = `등급: ${rank}`;
+        }
+
+        // 단어 퀴즈 시작
+        function startWordQuiz() {
+            wordQuizData = [...katakanaWords].sort(() => Math.random() - 0.5).slice(0, 20);
+            currentWordQuiz = 0;
+            wordScore = 0;
+            
+            document.getElementById('wordQuizContent').style.display = 'block';
+            document.getElementById('wordQuizResult').style.display = 'none';
+            
+            showWordQuestion();
+        }
+
+        // 단어 퀴즈 문제 표시
+        function showWordQuestion() {
+            if (currentWordQuiz >= 20) {
+                showWordResult();
+                return;
+            }
+            
+            const [correctWord, correctMeaning] = wordQuizData[currentWordQuiz];
+            const wrongOptions = katakanaWords
+                .filter(([word, meaning]) => meaning !== correctMeaning)
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 3)
+                .map(([word, meaning]) => meaning);
+            
+            const options = [correctMeaning, ...wrongOptions].sort(() => Math.random() - 0.5);
+            
+            document.getElementById('wordProgress').textContent = `${currentWordQuiz + 1} / 20`;
+            document.getElementById('wordQuestion').textContent = correctWord;
+            
+            const optionsContainer = document.getElementById('wordOptions');
+            optionsContainer.innerHTML = '';
+            
+            options.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = option;
+                btn.onclick = () => checkWordAnswer(option, correctMeaning, btn);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        // 단어 퀴즈 답안 확인
+        function checkWordAnswer(selected, correct, btn) {
+            const allBtns = document.querySelectorAll('#wordOptions .option-btn');
+            allBtns.forEach(b => b.disabled = true);
+            
+            if (selected === correct) {
+                btn.classList.add('correct');
+                wordScore++;
+            } else {
+                btn.classList.add('incorrect');
+                allBtns.forEach(b => {
+                    if (b.textContent === correct) {
+                        b.classList.add('correct');
+                    }
+                });
+            }
+            
+            setTimeout(() => {
+                currentWordQuiz++;
+                showWordQuestion();
+            }, 1500);
+        }
+
+        // 단어 퀴즈 결과 표시
+        function showWordResult() {
+            document.getElementById('wordQuizContent').style.display = 'none';
+            document.getElementById('wordQuizResult').style.display = 'block';
+            
+            const percentage = (wordScore / 20) * 100;
+            document.getElementById('wordScore').textContent = `점수: ${wordScore}/20 (${percentage.toFixed(1)}%)`;
+            
+            let rank = '';
+            if (percentage <= 20) rank = '카라스반 새내기';
+            else if (percentage <= 40) rank = '카라스반 초보';
+            else if (percentage <= 60) rank = '카라스반 중급';
+            else if (percentage <= 80) rank = '카라스반 고수';
+            else rank = '카라스반 마스터';
+            
+            document.getElementById('wordRank').textContent = `등급: ${rank}`;
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            displayCharacters();
+            displayWords();
+        });
+    </script>
+</body>
+</html>
+            
