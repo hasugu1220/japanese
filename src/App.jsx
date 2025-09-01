@@ -3,8 +3,10 @@ import Header from './components/Header';
 import Navigation from './components/Navigation';
 import CharacterTable from './components/CharacterTable';
 import WordList from './components/WordList';
+import SentenceStudy from './components/SentenceStudy';
 import CharacterQuiz from './components/CharacterQuiz';
 import WordQuiz from './components/WordQuiz';
+import SentenceQuiz from './components/SentenceQuiz';
 import './styles/index.css';
 
 function App() {
@@ -20,10 +22,14 @@ function App() {
         return <CharacterTable />;
       case 'words':
         return <WordList />;
+      case 'sentences':
+        return <SentenceStudy />;
       case 'character-quiz':
         return <CharacterQuiz />;
       case 'word-quiz':
         return <WordQuiz />;
+      case 'sentence-quiz':
+        return <SentenceQuiz />;
       default:
         return <CharacterTable />;
     }
